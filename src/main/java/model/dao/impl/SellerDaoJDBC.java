@@ -3,6 +3,8 @@ package model.dao.impl;
 import db.DB;
 import db.exception.DbException;
 import model.dao.interfaces.SellerDao;
+import model.dao.mapper.DepartmentDaoMapper;
+import model.dao.mapper.SellerDaoMapper;
 import model.entities.Department;
 import model.entities.Seller;
 
@@ -50,18 +52,8 @@ public class SellerDaoJDBC implements SellerDao {
             rs = pstm.executeQuery();
 
             if (rs.next()) {
-                Department department = new Department();
-                department.setId(rs.getInt("DepartmentId"));
-                department.setName(rs.getString("DepName"));
-                Seller seller = new Seller();
-                seller.setId(rs.getInt("Id"));
-                seller.setName(rs.getString("Name"));
-                seller.setEmail(rs.getString("Email"));
-                seller.setBirthDate(rs.getDate("BirthDate"));
-                seller.setSalary(rs.getDouble("BaseSalary"));
-                seller.setDepartment(department);
-
-                return seller;
+                Department department = DepartmentDaoMapper.map(rs);
+                return SellerDaoMapper.map(rs, department);
             }
 
             return null;
