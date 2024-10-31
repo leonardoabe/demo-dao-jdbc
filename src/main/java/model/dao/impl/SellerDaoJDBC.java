@@ -5,10 +5,10 @@ import model.entities.Seller;
 
 import java.util.List;
 
-public class SellerDaoImpl implements SellerDao {
+public class SellerDaoJDBC implements SellerDao {
     @Override
     public void insert(Seller seller) {
-        
+
     }
 
     @Override
