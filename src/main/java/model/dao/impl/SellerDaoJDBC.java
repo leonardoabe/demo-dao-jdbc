@@ -1,6 +1,6 @@
 package model.dao.impl;
 
-import db.DB;
+import db.DbUtils;
 import db.exception.DbException;
 import model.dao.interfaces.SellerDao;
 import model.dao.mapper.DepartmentDaoMapper;
@@ -50,7 +50,7 @@ public class SellerDaoJDBC implements SellerDao {
         } catch (SQLException e) {
             throw new DbException("Failed to insert new seller. Caused by: " + e.getMessage());
         } finally {
-            closeConnections(pstm, null);
+            DbUtils.closeConnections(pstm, null);
         }
 
     }
@@ -81,7 +81,7 @@ public class SellerDaoJDBC implements SellerDao {
         } catch (SQLException e) {
             throw new DbException("Failed to insert new seller. Caused by: " + e.getMessage());
         } finally {
-            closeConnections(pstm, null);
+            DbUtils.closeConnections(pstm, null);
         }
     }
 
@@ -104,7 +104,7 @@ public class SellerDaoJDBC implements SellerDao {
         } catch (SQLException e) {
             throw new DbException("Failed to delete seller with id: " + id + ". Caused by: " + e.getMessage());
         } finally {
-            closeConnections(pstm, null);
+            DbUtils.closeConnections(pstm, null);
         }
 
     }
@@ -132,7 +132,7 @@ public class SellerDaoJDBC implements SellerDao {
         } catch (SQLException e) {
             throw new DbException("Failed to find seller with id: " + id + ". Caused by: " + e.getMessage());
         } finally {
-            closeConnections(pstm, rs);
+            DbUtils.closeConnections(pstm, rs);
         }
     }
 
@@ -161,7 +161,7 @@ public class SellerDaoJDBC implements SellerDao {
         } catch (SQLException e) {
             throw new DbException("Failed to fetch all sellers. Caused by: " + e.getMessage());
         } finally {
-            closeConnections(pstm, rs);
+            DbUtils.closeConnections(pstm, rs);
         }
 
     }
@@ -192,13 +192,8 @@ public class SellerDaoJDBC implements SellerDao {
         } catch (SQLException e) {
             throw new DbException("Failed to find sellers by department: " + id + ". Caused by: " + e.getMessage());
         } finally {
-            closeConnections(pstm, rs);
+            DbUtils.closeConnections(pstm, rs);
         }
-    }
-
-    private void closeConnections(PreparedStatement pstm, ResultSet rs) {
-        if (pstm != null) DB.closeStatement(pstm);
-        if (rs != null) DB.closeResultSet(rs);
     }
 
     private Department getDepartment(Map<Integer, Department> departmentMap, ResultSet rs) {
