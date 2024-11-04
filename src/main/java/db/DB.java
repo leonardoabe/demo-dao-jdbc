@@ -30,7 +30,7 @@ public class DB {
             try {
                 conn.close();
             } catch (SQLException e) {
-                throw new DbException("Faile to close DB connection:" + e.getMessage());
+                throw new DbException("Failed to close DB connection:" + e.getMessage());
             }
         }
     }

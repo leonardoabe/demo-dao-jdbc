@@ -63,14 +63,38 @@ public class SellerDaoJDBC implements SellerDao {
         } catch (SQLException e) {
             throw new DbException("Failed to find seller with id: " + id + ". Caused by: " + e.getMessage());
         } finally {
-            if (pstm != null) DB.closeStatement(pstm);
-            if (rs != null) DB.closeResultSet(rs);
+            closeConnections(pstm, rs);
         }
     }
 
     @Override
     public List<Seller> findAll() {
-        return List.of();
+        PreparedStatement pstm = null;
+        ResultSet rs = null;
+        List<Seller> sellers = new ArrayList<>();
+        Map<Integer, Department> departmentMap = new HashMap<>();
+
+        try {
+            pstm = conn.prepareStatement(
+                    "SELECT seller.*, department.Name as DepName " +
+                            "FROM seller INNER JOIN department " +
+                            "ON seller.DepartmentId = department.Id " +
+                            "ORDER BY Name");
+
+            rs = pstm.executeQuery();
+
+            while (rs.next()) {
+                Department dep = getDepartment(departmentMap, rs);
+                sellers.add(SellerDaoMapper.map(rs, dep));
+            }
+
+            return sellers;
+        } catch (SQLException e) {
+            throw new DbException("Failed to fetch all sellers. Caused by: " + e.getMessage());
+        } finally {
+            closeConnections(pstm, rs);
+        }
+
     }
 
     @Override
@@ -91,19 +115,36 @@ public class SellerDaoJDBC implements SellerDao {
             rs = pstm.executeQuery();
 
             while (rs.next()) {
-                Department dep = departmentMap.get(rs.getInt("DepartmentId"));
-
-                if (dep == null) {
-                    dep = DepartmentDaoMapper.map(rs);
-                    departmentMap.put(rs.getInt("DepartmentId"), dep);
-                }
-
+                Department dep = getDepartment(departmentMap, rs);
                 sellers.add(SellerDaoMapper.map(rs, dep));
             }
 
             return sellers;
         } catch (SQLException e) {
             throw new DbException("Failed to find sellers by department: " + id + ". Caused by: " + e.getMessage());
+        } finally {
+            closeConnections(pstm, rs);
+        }
+    }
+
+    private void closeConnections(PreparedStatement pstm, ResultSet rs) {
+        if (pstm != null) DB.closeStatement(pstm);
+        if (rs != null) DB.closeResultSet(rs);
+    }
+
+    private Department getDepartment(Map<Integer, Department> departmentMap, ResultSet rs) {
+        try {
+            Department department = departmentMap.get(rs.getInt("DepartmentId"));
+
+            if (department == null) {
+                department = DepartmentDaoMapper.map(rs);
+                departmentMap.put(rs.getInt("DepartmentId"), department);
+            }
+
+            return department;
+
+        } catch (SQLException e) {
+            throw new DbException("Failed to get department from dictionary. Caused by " + e.getMessage());
         }
     }
 }
